@@ -9,9 +9,37 @@ import Foundation
 
 extension Forecast {
     public struct Period: Decodable, Identifiable {
+                
+//        detailedForecast = "Sunny, with a high near 23. North northwest wind 6 to 15 km/h.";
+//        dewpoint =     {
+//            unitCode = "wmoUnit:degC";
+//            value = "15.55555555555556";
+//        };
+//        endTime = "2023-10-06T18:00:00-07:00";
+//        icon = "https://api.weather.gov/icons/land/day/few?size=medium";
+//        isDaytime = 1;
+//        name = Friday;
+//        number = 5;
+//        probabilityOfPrecipitation =     {
+//            unitCode = "wmoUnit:percent";
+//            value = "<null>";
+//        };
+//        relativeHumidity =     {
+//            unitCode = "wmoUnit:percent";
+//            value = 82;
+//        };
+//        shortForecast = Sunny;
+//        startTime = "2023-10-06T06:00:00-07:00";
+//        temperature = 23;
+//        temperatureTrend = "<null>";
+//        temperatureUnit = C;
+//        windDirection = NNW;
+//        windSpeed = "6 to 15 km/h";
+
+        
         public enum CodingKeys: String, CodingKey {
             case name, startTime, endTime, isDaytime
-            case temperature, temperatureUnit, windSpeed, windDirection
+            case temperature, temperatureUnit, relativeHumidity, windSpeed, windDirection, probabilityOfPrecipitation, dewpoint
             case icon, shortForecast, detailedForecast
         }
 
@@ -21,6 +49,9 @@ extension Forecast {
         public let isDaytime: Bool
 
         public let temperature: Measurement<UnitTemperature>
+        public let relativeHumidity: RelativeHumidity?
+        public let probabilityOfPrecipitation: ProbabilityOfPrecipitation?
+        public let dewPoint: DewPoint?
         public let windSpeed: Wind
 
         public let conditions: [Condition]
@@ -45,6 +76,10 @@ extension Forecast {
 
             self.temperature = Measurement(value: temperatureValue, unit: temperatureUnit)
 
+            self.relativeHumidity = try container.decodeIfPresent(RelativeHumidity.self, forKey: .relativeHumidity) ?? nil
+            self.probabilityOfPrecipitation = try container.decodeIfPresent(ProbabilityOfPrecipitation.self, forKey: .probabilityOfPrecipitation) ?? nil
+            self.dewPoint = try container.decodeIfPresent(DewPoint.self, forKey: .dewpoint) ?? nil
+
             let windSpeedValue = try container.decode(String.self, forKey: .windSpeed)
             let windDirection = try container.decodeIfPresent(String.self, forKey: .windDirection) ?? ""
             self.windSpeed = try Wind(from: windSpeedValue, direction: windDirection)
@@ -54,6 +89,7 @@ extension Forecast {
 
             self.shortForecast = try container.decode(String.self, forKey: .shortForecast)
             self.detailedForecast = try container.decode(String.self, forKey: .detailedForecast)
+            
         }
     }
 }

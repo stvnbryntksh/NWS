@@ -11,6 +11,7 @@ import FoundationNetworking
 #endif
 import GEOSwift
 
+
 public class NationalWeatherService {
     // Definitions
     public typealias GeoJSONHandler = (Result<GeoJSON, Error>) -> Void
@@ -43,6 +44,16 @@ public class NationalWeatherService {
         let task = session.dataTask(with: request) { result in
             switch result {
             case .success(let data):
+//                guard let json = try! JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+//                    print("not JSON format expected")
+//                    print(String(data: data, encoding: .utf8) ?? "Not string?!?")
+//                    return
+//                }
+
+//                print("========= loadNWS ========= ")
+//                print( json)
+//                print("========================= ")
+
                 if let geoJSON = try? self.decoder.decode(GeoJSON.self, from: data) {
                     handler(.success(geoJSON))
                 } else if let errorDetails = try? self.decoder.decode(APIErrorDetails.self, from: data) {
@@ -72,6 +83,17 @@ public class NationalWeatherService {
                    let featureProperties = feature.untypedProperties {
                     do {
                         let data = try JSONSerialization.data(withJSONObject: featureProperties, options: [])
+                        
+//                        guard let json = try! JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+//                            print("not JSON format expected")
+//                            print(String(data: data, encoding: .utf8) ?? "Not string?!?")
+//                            return
+//                        }
+
+//                        print("========= load ========= ")
+//                        print( json)
+//                        print("========================= ")
+                        
                         handler(.success(try self.decoder.decode(type, from: data)))
                     } catch {
                         handler(.failure(error))
